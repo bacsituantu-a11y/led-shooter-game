@@ -10,6 +10,17 @@ Một chuỗi màu ngẫu nhiên chảy từ cuối dây về phía gốc. Ngư�
 - **Đủ 100 điểm** → qua bài, dây **chớp xanh lá 3 lần**, chuỗi chảy nhanh hơn.
 - Tổng **10 bài**. Qua hết bài 10 thì dây chạy cầu vồng rồi về bài 1.
 
+## ⚠️ Lưu ý an toàn
+
+Đọc hết mục này trước khi cấp nguồn lần đầu.
+
+- **Dùng nguồn 5V ≥ 3A riêng cho dây LED.** 70 led WS2812 sáng trắng full có thể kéo tới ~4A; nguồn yếu sẽ sụt áp, LED nhấp nháy sai màu hoặc ESP32 tự reset.
+- **KHÔNG cấp nguồn cho dây LED qua cổng USB máy tính.** Cổng USB chỉ chịu ~0.5A — quá tải sẽ làm cháy cổng USB hoặc hỏng mainboard. Cổng USB chỉ dùng để nạp code và xem log.
+- **Chung GND toàn mạch.** GND của ESP32, dây LED, MAX98357 và nguồn 5V phải nối về cùng một điểm. Thiếu GND chung là nguyên nhân phổ biến nhất gây LED chạy loạn và loa rít.
+- **Tụ 1000µF/10V ở đầu dây LED**, nối giữa 5V và GND, **đúng chiều cực** (chân âm có vạch). Tụ này hấp thụ xung dòng khi nhiều led bật cùng lúc. Gắn ngược cực tụ có thể phồng hoặc nổ.
+- **Điện trở 330Ω trên đường data** giữa GPIO16 và chân DIN của dây LED, để hạn dòng và giảm nhiễu phản xạ trên đường tín hiệu.
+- **Chạm dây trần khi đang có điện có thể làm cháy ESP32.** Ngắt nguồn trước khi đổi dây, kiểm tra kỹ cực tính 5V/GND trước khi cấp điện, và không để đầu dây hở chạm vào nhau.
+
 ## Cách chơi
 
 Bật nguồn, mạch phát một đoạn nhạc ngắn rồi vào menu. Số led **xanh lá** sáng liền nhau ở **cuối dây** cho biết bài hiện tại: 1 led = bài 1, 10 led = bài 10.
@@ -79,8 +90,8 @@ Chân còn lại của cả 3 nút nối **GND** — code dùng `INPUT_PULLUP` n
 
 ## Lưu ý khi lắp
 
-- **Chung GND toàn mạch**: GND của ESP32, dây LED, MAX98357 và nguồn 5V phải nối chung. Thiếu điểm này thì LED nhấp nháy sai hoặc loa rít.
-- **Không cấp nguồn cho dây LED từ cổng USB** của ESP32 — 70 led kéo dòng vượt xa khả năng của USB. Dùng nguồn 5V ≥ 3A riêng.
+Các điểm về nguồn, GND chung, tụ và điện trở nằm ở mục **⚠️ Lưu ý an toàn** ở đầu README.
+
 - Nếu **màu hiển thị sai** (đỏ ra xanh, xanh ra đỏ), đổi thứ tự màu trong `FastLED.addLeds`:
   ```cpp
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);   // đổi GRB -> RGB
@@ -103,14 +114,14 @@ arduino-cli lib install FastLED
 # Bien dich
 arduino-cli compile --fqbn esp32:esp32:esp32 led_shooter_game
 
-# Nap (sua COM8 thanh cong cua ban)
-arduino-cli upload -p COM8 --fqbn esp32:esp32:esp32 led_shooter_game
+# Nap - doi COM_PORT thanh cong serial thuc te cua ban
+arduino-cli upload -p COM_PORT --fqbn esp32:esp32:esp32 led_shooter_game
 
 # Xem log
-arduino-cli monitor -p COM8 -c baudrate=115200 --raw
+arduino-cli monitor -p COM_PORT -c baudrate=115200 --raw
 ```
 
-Thư mục sketch phải trùng tên file `.ino` — đó là yêu cầu của Arduino. Trên Linux/macOS cổng sẽ là dạng `/dev/ttyUSB0` hoặc `/dev/cu.usbserial-*` thay cho `COM8`.
+Thư mục sketch phải trùng tên file `.ino` — đó là yêu cầu của Arduino. Thay `COM_PORT` bằng cổng thực tế: trên Windows là dạng `COM3`, `COM4`…, trên Linux là `/dev/ttyUSB0`, trên macOS là `/dev/cu.usbserial-*`. Liệt kê cổng đang có bằng `arduino-cli board list`.
 
 Sketch dùng driver I2S mới (`driver/i2s_std.h`). API cũ `driver/i2s.h` **không dùng được** với core esp32 3.x — sẽ abort ngay khi boot với lỗi `CONFLICT! The new i2s driver can't work along with the legacy i2s driver`.
 
@@ -125,6 +136,12 @@ Sketch dùng driver I2S mới (`driver/i2s_std.h`). API cũ `driver/i2s.h` **kh�
 | `stepMs()` | `max(80, 450 - (level-1)*35)` | Tốc độ chuỗi chảy theo bài, ms mỗi bước |
 
 Ngoài ra `MAX_LEVEL` (10 bài) và `WIN_SCORE` (100 điểm qua bài) cũng nằm ngay đầu file.
+
+## Miễn trừ trách nhiệm
+
+Đây là một dự án hobby, chia sẻ với mục đích học tập và giải trí. Code và sơ đồ nối dây được cung cấp "nguyên trạng", không kèm bảo đảm nào — xem phần miễn trừ trong [LICENSE](LICENSE).
+
+Người tự lắp mạch **hoàn toàn tự chịu trách nhiệm** về phần cứng của mình: hỏng board, hỏng dây LED, hỏng nguồn, hỏng cổng USB hay bất kỳ thiệt hại nào khác. Bạn tự kiểm tra lại điện áp, cực tính và dòng tải trước khi cấp nguồn.
 
 ## License
 
