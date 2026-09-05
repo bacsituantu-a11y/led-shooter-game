@@ -1,0 +1,11 @@
+# Ket qua bien dich arduino-cli
+build/
+*.bin
+*.elf
+*.map
+*.hex
+*.a
+*.d
+
+# Log serial bat bang cap.ps1 / monitor
+*.txt
