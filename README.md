@@ -94,7 +94,7 @@ Các điểm về nguồn, GND chung, tụ và điện trở nằm ở mục **�
 
 - Nếu **màu hiển thị sai** (đỏ ra xanh, xanh ra đỏ), đổi thứ tự màu trong `FastLED.addLeds`:
   ```cpp
-  FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);   // đổi GRB -> RGB
+  FastLED.addLeds<WS2812B, LED_PIN, RGB>(leds, NUM_LEDS);   // doi GRB/RGB/BRG neu day led hien sai mau
   ```
 
 ## Build và nạp

@@ -320,7 +320,7 @@ void setup() {
   pinMode(BTN_RED, INPUT_PULLUP);
   randomSeed(esp_random());
 
-  FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812B, LED_PIN, RGB>(leds, NUM_LEDS);   // doi GRB/RGB/BRG neu day led hien sai mau
   FastLED.setBrightness(BRIGHTNESS);
   FastLED.clear(); FastLED.show();
 
