@@ -2,12 +2,12 @@
 
 Game bắn màu chạy trên **ESP32 WROOM**, điều khiển dây **70 LED WS2812**, 3 nút nhấn và loa qua module **MAX98357** (I2S).
 
-Một chuỗi màu ngẫu nhiên chảy từ cuối dây về phía gốc. Người chơi bấm nút đúng màu để bắn viên đạn cùng màu:
+Một chuỗi màu ngẫu nhiên mọc ra từ cuối dây, mỗi bước dài thêm 1 led và chảy dần về phía gốc. Người chơi bấm nút đúng màu để bắn viên đạn cùng màu:
 
 - **Đúng màu đầu chuỗi** → đầu chuỗi nổ, chuỗi ngắn lại, **+10 điểm**.
 - **Sai màu** → viên đạn dính vào đầu chuỗi, chuỗi dài thêm 1 led.
 - **Chuỗi chạm gốc dây** → thua, dây **chớp đỏ 3 lần**, về menu.
-- **Đủ 100 điểm** → qua bài, dây **chớp xanh lá 3 lần**, chuỗi chảy nhanh hơn.
+- **Đủ 300 điểm** → qua bài, dây **chớp xanh lá 3 lần**, chuỗi chảy nhanh hơn.
 - Tổng **10 bài**. Qua hết bài 10 thì dây chạy cầu vồng rồi về bài 1.
 
 ## ⚠️ Lưu ý an toàn
@@ -131,11 +131,10 @@ Sketch dùng driver I2S mới (`driver/i2s_std.h`). API cũ `driver/i2s.h` **kh�
 |---|---|---|
 | `NUM_LEDS` | 70 | Số led trên dây |
 | `BRIGHTNESS` | 70 | Độ sáng 0–255, giảm để tiết kiệm dòng |
-| `CHAIN_START` | 10 | Độ dài chuỗi màu lúc bắt đầu |
 | `BULLET_MS` | 15 | Tốc độ đạn, ms cho mỗi led (nhỏ = nhanh) |
 | `stepMs()` | `max(80, 450 - (level-1)*35)` | Tốc độ chuỗi chảy theo bài, ms mỗi bước |
 
-Ngoài ra `MAX_LEVEL` (10 bài) và `WIN_SCORE` (100 điểm qua bài) cũng nằm ngay đầu file.
+Ngoài ra `MAX_LEVEL` (10 bài) và `WIN_SCORE` (300 điểm qua bài) cũng nằm ngay đầu file. Chuỗi màu luôn bắt đầu bằng đúng 1 led ở cuối dây rồi tự dài thêm mỗi bước, nên không còn tham số độ dài chuỗi ban đầu.
 
 ## Miễn trừ trách nhiệm
 

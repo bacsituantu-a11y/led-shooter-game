@@ -62,12 +62,10 @@
 #define BRIGHTNESS  70
 // So bai toi da. Nen 5-20; tang len thi bai cuoi chay rat nhanh (xem stepMs).
 #define MAX_LEVEL   10
-// Do dai chuoi mau luc bat dau moi bai. Nen 5-20, phai nho hon NUM_LEDS.
-#define CHAIN_START 10
 // Toc do dan: so ms dan di duoc 1 led. Nen 8-40; nho hon = dan bay nhanh hon.
 #define BULLET_MS   15
-// So diem can dat de qua bai. Nen 50-200; moi lan ban dung duoc +10 diem.
-#define WIN_SCORE   100
+// So diem can dat de qua bai. Nen 100-600; moi lan ban dung duoc +10 diem.
+#define WIN_SCORE   300
 
 CRGB leds[NUM_LEDS];
 const CRGB COLORS[3] = { CRGB::Green, CRGB::Blue, CRGB::Red };   // 0 xanh la, 1 xanh duong, 2 do
@@ -216,8 +214,11 @@ void showMenu() {
 }
 
 void newChain() {
-  chainLen = CHAIN_START;
-  headPos = NUM_LEDS - CHAIN_START;
+  // Chuoi bat dau bang DUNG 1 led o cuoi day; updateGame() se nap them
+  // 1 led moi buoc nen chuoi tu dai ra dan, khong hien san ca doan.
+  chainLen = 1;
+  headPos = NUM_LEDS - 1;
+  chain[0] = random(3);
   for (int i = 0; i < chainLen; i++) chain[i] = random(3);
   for (auto& b : bullets) b.active = false;
   lastStep = millis();
@@ -225,6 +226,8 @@ void newChain() {
 
 void startGame() {
   score = 0;
+  // Xoa het led chon bai truoc khi chuoi xuat hien, tranh lan mau.
+  FastLED.clear(); FastLED.show(); delay(300);
   newChain();
   state = PLAY;
 }
@@ -257,8 +260,9 @@ void drawGame() {
   }
   for (auto& b : bullets)
     if (b.active && b.pos >= 0 && b.pos < NUM_LEDS) leds[b.pos] = COLORS[b.color];
-  // led goc bao diem: sang trang mo khi gan qua man
-  leds[0] += CRGB(score / 2, score / 2, score / 2);
+  // led goc bao diem: sang trang mo dan theo ti le score/WIN_SCORE, chan tran
+  // o 255 de khong bi wrap khi WIN_SCORE lon.
+  uint8_t v = min(score * 255 / WIN_SCORE, 255); leds[0] += CRGB(v/2, v/2, v/2);
   FastLED.show();
 }
 
